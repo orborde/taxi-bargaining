@@ -6,10 +6,10 @@ Taxi = namedtuple('Taxi', ['name'])
 Passenger = namedtuple('Passenger', ['name'])
 
 X, Y = Taxi('X'),Taxi('Y'),
-Taxis = [X, Y]
+Taxis = set([X, Y])
 
 A, B, C = [Passenger(name) for name in ['A','B','C']]
-Passengers = [A, B, C]
+Passengers = set([A, B, C])
 
 PassengerMaxPrice = 7
 TaxiMinPrice = 6
@@ -51,6 +51,20 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         new_passengers = {p:0 for p in self.passengers}
         return Coalition(frozendict(new_passengers), None)
 
+class World(namedtuple('World', ['coalitions'])):
+    def valid(self):
+        for p in Passengers:
+            coalitions = [c for c in self.coalitions if p in c.passengers]
+            if len(coalitions) != 1:
+                return False
+
+        for t in Taxis:
+            coalitions = [c for c in self.coalitions if c.taxi == t]
+            if len(coalitions) != 1:
+                return False
+
+        return True
+
 # https://docs.python.org/2/library/itertools.html#recipes
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -61,7 +75,7 @@ print 'Generating possible coalitions'
 def all_coalitions():
     def generator():
         for passengers in powerset(Passengers):
-            for taxi in [None] + Taxis:
+            for taxi in set([None]).union(Taxis):
                 if taxi is None:
                     fare_range = [0]
                 else:
@@ -75,3 +89,58 @@ coalitions = list(all_coalitions())
 assert len(coalitions) == len(set(coalitions))
 coalitions = set(coalitions)
 print len(coalitions), 'coalitions'
+
+print 'Generating possible worlds...'
+
+def partitions(arr, start=0):
+    if start == len(arr):
+        yield []
+        return
+
+    for end in range(start+1, len(arr)+1):
+        slice = arr[start:end]
+        for subparts in partitions(arr, start=end):
+            yield [slice] + subparts
+    return
+
+def construct_worlds(partition):
+    subset_ranges = []
+    for subset in partition:
+        passengers = [p for p in subset if p in Passengers]
+        taxis = [t for t in subset if t in Taxis]
+        assert len(taxis)+len(passengers) == len(subset)
+
+        if len(taxis) > 1:
+            return
+
+        if len(taxis) == 1:
+            taxi = taxis[0]
+        else:
+            taxi = None
+
+        if taxi is None:
+            subset_ranges.append([Coalition(frozendict({p:0 for p in passengers}), None)])
+            continue
+
+        coalitions = []
+        for fares in itertools.product(range(PassengerMaxPrice+1), repeat=len(passengers)):
+            coalitions.append(Coalition(frozendict(zip(passengers,fares)), taxi))
+        subset_ranges.append(coalitions)
+
+    for coalitions in itertools.product(*subset_ranges):
+        yield World(frozenset(coalitions))
+
+def gen_all_worlds():
+    worlds = set()
+    participants = list(Passengers) + list(Taxis)
+    for partition in partitions(participants):
+        for world in construct_worlds(partition):
+            assert world not in worlds
+            assert world.valid()
+            worlds.add(world)
+    return worlds
+
+all_worlds = gen_all_worlds()
+print len(all_worlds), 'possible worlds'
+for w in all_worlds:
+    print w
