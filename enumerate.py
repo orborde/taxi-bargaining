@@ -1,4 +1,4 @@
-DEBUG=True
+DEBUG=False
 
 from collections import namedtuple
 from frozendict import frozendict
