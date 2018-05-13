@@ -79,16 +79,6 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         assert x is not None
         return (x in self.passengers) or (self.taxi == x)
 
-    def possible_removals(self):
-        removals = []
-        for p in self.passengers:
-            removals.append( (p, self.remove_passenger(p)) )
-
-        if self.taxi is not None:
-            removals.append( (t, self.remove_taxi(t)) )
-
-        return removals
-
 
 # https://docs.python.org/2/library/itertools.html#recipes
 def powerset(iterable):
