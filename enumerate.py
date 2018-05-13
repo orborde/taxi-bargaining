@@ -26,13 +26,16 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         return 'C(' + ', '.join(v) + ')'
 
     def valid(self):
-        if len(self.passengers) == 0 and self.taxi is None:
+        if self.empty():
             return False
 
         if self.taxi is None:
             return all(self.passengers[p] == 0 for p in self.passengers)
         else:
             return len(self.passengers) <= 2
+
+    def empty(self):
+        return (len(self.passengers) == 0) and (self.taxi is None)
 
     def utilities(self):
         assert self.valid()
@@ -158,7 +161,10 @@ class World(namedtuple('World', ['coalitions'])):
                 for x in defectors:
                     if x in c:
                         c = c.remove(x)
-                revised_old_coalitions.append(c)
+                if c.empty():
+                    revised_old_coalitions.append(c)
+
+            assert all(c.valid() for c in revised_old_coalitions)
 
             for new_coalition in fares_for_coalition(passengers, taxi):
                 new_coalitions = revised_old_coalitions + [new_coalition]
