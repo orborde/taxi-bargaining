@@ -270,12 +270,6 @@ for w in tqdm(all_worlds):
         assert new_world in all_worlds
         new_utility = new_world.utilities()
 
-        if DEBUG:
-            print defectors
-            for d in defectors:
-                print d, start_utility[d], new_utility[d]
-            print
-
         if all(new_utility[d] > start_utility[d] for d in defectors):
             dominated = True
             break
