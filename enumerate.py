@@ -125,6 +125,9 @@ class World(namedtuple('World', ['coalitions'])):
             ', '.join(repr(c) for c in self.coalitions))
 
     def valid(self):
+        if not all(c.valid() for c in self.coalitions):
+            return False
+
         for p in Passengers:
             coalitions = [c for c in self.coalitions if p in c.passengers]
             if len(coalitions) != 1:
