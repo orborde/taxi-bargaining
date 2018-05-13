@@ -164,7 +164,7 @@ class World(namedtuple('World', ['coalitions'])):
                 for x in defectors:
                     if x in c:
                         c = c.remove(x)
-                if c.empty():
+                if not c.empty():
                     revised_old_coalitions.append(c)
 
             assert all(c.valid() for c in revised_old_coalitions)
