@@ -178,16 +178,34 @@ class World(namedtuple('World', ['coalitions'])):
 
 print 'Generating possible worlds...'
 
-def partitions(arr, start=0):
-    if start == len(arr):
-        yield []
-        return
+# What a sad algorithm.
+def partitions(seq):
+    def helper(seq):
+        if len(seq) == 0:
+            yield []
+            return
 
-    for end in range(start+1, len(arr)+1):
-        slice = arr[start:end]
-        for subparts in partitions(arr, start=end):
-            yield [slice] + subparts
-    return
+        for subset in powerset(seq):
+            subset = frozenset(subset)
+            if len(subset) == 0:
+                continue
+            remaining = set(seq)
+            remaining.difference_update(subset)
+            for partition in helper(remaining):
+                yield [subset] + partition
+
+    results = set()
+    ct = 0
+    dup = 0
+    for x in helper(seq):
+        x = frozenset(x)
+        ct += 1
+        if x in results:
+            dup += 1
+        else:
+            yield list(map(list, x))
+        results.add(x)
+    print 'partitions run:', seq, dup, ct
 
 def construct_worlds(partition):
     subset_ranges = []
