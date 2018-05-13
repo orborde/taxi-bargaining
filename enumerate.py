@@ -263,6 +263,7 @@ all_worlds = gen_all_worlds()
 print len(all_worlds), 'possible worlds'
 
 print 'Checking...'
+defections = {}
 for w in tqdm(all_worlds):
     start_utility = w.utilities()
     dominated = False
@@ -271,9 +272,12 @@ for w in tqdm(all_worlds):
         new_utility = new_world.utilities()
 
         if all(new_utility[d] > start_utility[d] for d in defectors):
+            defections[w] = (defectors, new_world)
             dominated = True
             break
 
-    if not dominated:
-        print 'No dominant defection found for', w
-        break
+    assert dominated, 'No dominant defection found for {}'.format(repr(w))
+
+for w in sorted(all_worlds):
+    defectors, new_world = defections[w]
+    print w, '-->', defectors, '-->', new_world
