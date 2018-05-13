@@ -97,9 +97,6 @@ def assemble_coalition(participants):
     taxis = [t for t in participants if t in Taxis]
     assert len(taxis)+len(passengers) == len(participants)
 
-    if len(passengers) > 2:
-        return None
-
     if len(taxis) > 1:
         return None
 
@@ -107,6 +104,9 @@ def assemble_coalition(participants):
         taxi = taxis[0]
     else:
         taxi = None
+
+    if taxi is not None and len(passengers) > 2:
+        return None
 
     if len(passengers) == 0 and taxi is None:
         return None
