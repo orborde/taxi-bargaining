@@ -65,31 +65,6 @@ class World(namedtuple('World', ['coalitions'])):
 
         return True
 
-# https://docs.python.org/2/library/itertools.html#recipes
-def powerset(iterable):
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
-    s = list(iterable)
-    return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s)+1))
-
-print 'Generating possible coalitions'
-def all_coalitions():
-    def generator():
-        for passengers in powerset(Passengers):
-            for taxi in set([None]).union(Taxis):
-                if taxi is None:
-                    fare_range = [0]
-                else:
-                    fare_range = range(PassengerMaxPrice+1)
-
-                for fares in itertools.product(fare_range, repeat=len(passengers)):
-                    yield Coalition(frozendict(zip(passengers, fares)), taxi)
-    return itertools.ifilter(lambda c: c.valid(), generator())
-
-coalitions = list(all_coalitions())
-assert len(coalitions) == len(set(coalitions))
-coalitions = set(coalitions)
-print len(coalitions), 'coalitions'
-
 print 'Generating possible worlds...'
 
 def partitions(arr, start=0):
