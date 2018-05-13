@@ -4,6 +4,7 @@ from collections import namedtuple
 from frozendict import frozendict
 import itertools
 
+from pygraphviz import AGraph
 from tqdm import tqdm
 
 Taxi = namedtuple('Taxi', ['name'])
@@ -278,6 +279,10 @@ for w in tqdm(all_worlds):
 
     assert dominated, 'No dominant defection found for {}'.format(repr(w))
 
+g = AGraph()
 for w in sorted(all_worlds):
+    g.add_node(repr(w))
     defectors, new_world = defections[w]
     print w, '-->', defectors, '-->', new_world
+    g.add_edge(repr(w), repr(new_world), key=repr(defectors))
+g.draw('output.svg', format='svg', prog='dot')
