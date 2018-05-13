@@ -42,7 +42,7 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
     def remove_passenger(self, passenger):
         assert passenger in self.passengers
 
-        new_passengers_list = [p for p in self.passengers if p != passenger]
+        new_passengers = [p for p in self.passengers if p != passenger]
         new_fares = {p:self.passengers[p] for p in new_passengers}
 
         return Coalition(passengers=frozendict(new_fares), taxi=self.taxi)
@@ -60,9 +60,9 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         else:
             return self.remove_taxi(participant)
 
-    def __in__(self, x):
+    def __contains__(self, x):
         assert x is not None
-        return (x in self.passengers) or (taxi == x)
+        return (x in self.passengers) or (self.taxi == x)
 
     def possible_removals(self):
         removals = []
