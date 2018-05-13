@@ -88,6 +88,16 @@ def partitions(arr, start=0):
             yield [slice] + subparts
     return
 
+def fares_for_coalition(passengers, taxi):
+    assert (len(passengers) > 0) or (taxi is not None)
+
+    if taxi is None or len(passengers) == 0:
+        yield Coalition(frozendict({p:0 for p in passengers}), taxi)
+        return
+
+    for fares in itertools.product(range(PassengerMaxPrice+1), repeat=len(passengers)):
+        yield Coalition(frozendict(zip(passengers,fares)), taxi)
+
 def construct_worlds(partition):
     subset_ranges = []
     for subset in partition:
@@ -103,14 +113,7 @@ def construct_worlds(partition):
         else:
             taxi = None
 
-        if taxi is None:
-            subset_ranges.append([Coalition(frozendict({p:0 for p in passengers}), None)])
-            continue
-
-        coalitions = []
-        for fares in itertools.product(range(PassengerMaxPrice+1), repeat=len(passengers)):
-            coalitions.append(Coalition(frozendict(zip(passengers,fares)), taxi))
-        subset_ranges.append(coalitions)
+        subset_ranges.append(fares_for_coalition(passengers, taxi))
 
     for coalitions in itertools.product(*subset_ranges):
         yield World(frozenset(coalitions))
