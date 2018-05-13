@@ -130,5 +130,3 @@ def gen_all_worlds():
 
 all_worlds = gen_all_worlds()
 print len(all_worlds), 'possible worlds'
-for w in all_worlds:
-    print w
