@@ -11,6 +11,8 @@ Taxis = set([X, Y])
 A, B, C = [Passenger(name) for name in ['A','B','C']]
 Passengers = set([A, B, C])
 
+Participants = Taxis.union(Passengers)
+
 PassengerMaxPrice = 7
 TaxiMinPrice = 6
 
@@ -98,21 +100,30 @@ def fares_for_coalition(passengers, taxi):
     for fares in itertools.product(range(PassengerMaxPrice+1), repeat=len(passengers)):
         yield Coalition(frozendict(zip(passengers,fares)), taxi)
 
+def assemble_coalition(participants):
+    passengers = [p for p in participants if p in Passengers]
+    taxis = [t for t in participants if t in Taxis]
+    assert len(taxis)+len(passengers) == len(participants)
+
+    if len(taxis) > 1:
+        return None
+
+    if len(taxis) == 1:
+        taxi = taxis[0]
+    else:
+        taxi = None
+
+    return passengers, taxi
+
+
 def construct_worlds(partition):
     subset_ranges = []
     for subset in partition:
-        passengers = [p for p in subset if p in Passengers]
-        taxis = [t for t in subset if t in Taxis]
-        assert len(taxis)+len(passengers) == len(subset)
-
-        if len(taxis) > 1:
+        coalition = assemble_coalition(subset)
+        if coalition is None:
             return
 
-        if len(taxis) == 1:
-            taxi = taxis[0]
-        else:
-            taxi = None
-
+        passengers, taxi = coalition
         subset_ranges.append(fares_for_coalition(passengers, taxi))
 
     for coalitions in itertools.product(*subset_ranges):
