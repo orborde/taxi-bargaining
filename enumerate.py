@@ -17,6 +17,14 @@ PassengerMaxPrice = 7
 TaxiMinPrice = 6
 
 class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
+    def __repr__(self):
+        v = []
+        for p, fare in sorted(self.passengers.items()):
+            v.append('{}@{}'.format(p.name, fare))
+        if self.taxi is not None:
+            v.append(self.taxi.name)
+        return 'C(' + ', '.join(v) + ')'
+
     def valid(self):
         if len(self.passengers) == 0 and self.taxi is None:
             return False
@@ -110,6 +118,10 @@ def fares_for_coalition(passengers, taxi):
         yield Coalition(frozendict(zip(passengers,fares)), taxi)
 
 class World(namedtuple('World', ['coalitions'])):
+    def __repr__(self):
+        return 'World([{}])'.format(
+            ', '.join(repr(c) for c in self.coalitions))
+
     def valid(self):
         for p in Passengers:
             coalitions = [c for c in self.coalitions if p in c.passengers]
