@@ -1,6 +1,10 @@
+DEBUG=True
+
 from collections import namedtuple
 from frozendict import frozendict
 import itertools
+
+from tqdm import tqdm
 
 Taxi = namedtuple('Taxi', ['name'])
 Passenger = namedtuple('Passenger', ['name'])
@@ -205,7 +209,8 @@ def partitions(seq):
         else:
             yield list(map(list, x))
         results.add(x)
-    print 'partitions run:', seq, dup, ct
+    if DEBUG:
+        print 'partitions run:', seq, dup, ct
 
 def construct_worlds(partition):
     subset_ranges = []
@@ -215,25 +220,44 @@ def construct_worlds(partition):
             return
 
         passengers, taxi = coalition
-        subset_ranges.append(fares_for_coalition(passengers, taxi))
+        subset_ranges.append(list(fares_for_coalition(passengers, taxi)))
+
+    if DEBUG:
+        print partition
+        for sr in subset_ranges:
+            print sr
 
     for coalitions in itertools.product(*subset_ranges):
-        yield World(frozenset(coalitions))
+        w = World(frozenset(coalitions))
+        if DEBUG:
+            print w
+        yield w
+    if DEBUG:
+        print
 
 def gen_all_worlds():
     worlds = set()
     participants = list(Passengers) + list(Taxis)
     for partition in partitions(participants):
+        if DEBUG:
+            print partition
         for world in construct_worlds(partition):
             assert world not in worlds
             assert world.valid()
             worlds.add(world)
+        if DEBUG:
+            print
     return worlds
 
 all_worlds = gen_all_worlds()
 print len(all_worlds), 'possible worlds'
 
 print 'Checking...'
-for w in all_worlds:
+actual_all_worlds = set()
+for w in tqdm(all_worlds):
+    actual_all_worlds.add(w)
     for defectors, new_world in w.possible_new_worlds():
-        assert new_world in all_worlds
+        actual_all_worlds.add(new_world)
+
+print len(actual_all_worlds), len(all_worlds)
+assert actual_all_worlds == all_worlds
