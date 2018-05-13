@@ -140,6 +140,17 @@ class World(namedtuple('World', ['coalitions'])):
 
         return True
 
+    def utilities(self):
+        assert self.valid()
+
+        u = {}
+        for c in self.coalitions:
+            uc = c.utilities()
+            for p,v in uc.items():
+                assert p not in u
+                u[p] = v
+        return u
+
     def possible_new_worlds(self):
         prev_coalition = {}
         def record_in(x, c):
@@ -249,5 +260,15 @@ print len(all_worlds), 'possible worlds'
 
 print 'Checking...'
 for w in tqdm(all_worlds):
+    start_utility = w.utilities()
+    dominated = False
     for defectors, new_world in w.possible_new_worlds():
         assert new_world in all_worlds
+        new_utility = new_world.utilities()
+        if all(new_utility[d] > start_utility[d] for d in defectors):
+            dominated = True
+            break
+
+    if not dominated:
+        print 'No dominant defection found for', w
+        break
