@@ -52,7 +52,11 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
                 ret[p] = PassengerMaxPrice - self.passengers[p]
 
         if self.taxi is not None:
-            ret[self.taxi] = sum(self.passengers.values()) - TaxiMinPrice
+            if len(self.passengers) > 0:
+                ret[self.taxi] = sum(self.passengers.values()) - TaxiMinPrice
+            else:
+                # We just won't make a run in this case.
+                ret[self.taxi] = 0
 
         return ret
 
