@@ -51,6 +51,16 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         new_passengers = {p:0 for p in self.passengers}
         return Coalition(frozendict(new_passengers), None)
 
+    def possible_removals(self):
+        removals = []
+        for p in self.passengers:
+            removals.append( (p, self.remove_passenger(p)) )
+
+        if self.taxi is not None:
+            removals.append( (t, self.remove_taxi(t)) )
+
+        return removals
+
 class World(namedtuple('World', ['coalitions'])):
     def valid(self):
         for p in Passengers:
