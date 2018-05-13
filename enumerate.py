@@ -253,11 +253,6 @@ all_worlds = gen_all_worlds()
 print len(all_worlds), 'possible worlds'
 
 print 'Checking...'
-actual_all_worlds = set()
 for w in tqdm(all_worlds):
-    actual_all_worlds.add(w)
     for defectors, new_world in w.possible_new_worlds():
-        actual_all_worlds.add(new_world)
-
-print len(actual_all_worlds), len(all_worlds)
-assert actual_all_worlds == all_worlds
+        assert new_world in all_worlds
