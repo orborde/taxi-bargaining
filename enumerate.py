@@ -273,7 +273,7 @@ for w in tqdm(all_worlds):
         new_utility = new_world.utilities()
 
         if all(new_utility[d] > start_utility[d] for d in defectors):
-            defections[w] = (defectors, new_world)
+            defections[w] = (sorted(defectors), new_world)
             dominated = True
             break
 
