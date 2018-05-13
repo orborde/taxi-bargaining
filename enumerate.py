@@ -54,6 +54,8 @@ class Coalition(namedtuple('Coalition', ['passengers', 'taxi'])):
         if self.taxi is not None:
             ret[self.taxi] = sum(self.passengers.values()) - TaxiMinPrice
 
+        return ret
+
     def remove_passenger(self, passenger):
         assert passenger in self.passengers
 
