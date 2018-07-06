@@ -286,3 +286,5 @@ for w in sorted(all_worlds):
     print w, '-->', defectors, '-->', new_world
     g.add_edge(repr(w), repr(new_world), key=repr(defectors))
 g.draw('output.svg', format='svg', prog='dot')
+
+print 'Yep, every state is dominated by some defection of a subset of participants.'
